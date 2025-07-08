@@ -6,7 +6,7 @@
   <title>Checkout – DRIPPED</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script defer src="checkout.js"></script> <!-- Link to external JS -->
+  <script defer src="checkout.js"></script>
   <style>
     * {
       margin: 0;
@@ -76,6 +76,17 @@
       flex: 1;
     }
 
+    .payment-methods {
+      margin: 20px 0;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .payment-methods label {
+      cursor: pointer;
+    }
+
     button[type="submit"] {
       background-color: #d8ff3e;
       color: #000;
@@ -111,6 +122,13 @@
         <input name="state" placeholder="State" required />
       </div>
       <input name="pincode" placeholder="Pincode" required />
+
+      <!-- Payment options -->
+      <div class="payment-methods">
+        <label><input type="radio" name="payment" value="COD" required /> Cash on Delivery</label>
+        <label><input type="radio" name="payment" value="Online" /> Pay Online</label>
+      </div>
+
       <button type="submit">Pay Rs <span id="amount">0</span></button>
     </form>
   </div>
