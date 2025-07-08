@@ -3,26 +3,28 @@ const Razorpay = require('razorpay');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const twilio = require('twilio');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 
+// Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public"))); // ✅ Fixed static folder path
 
-// Razorpay instance
+// Razorpay setup
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// Create Razorpay order
+// Create order
 app.post("/create-order", async (req, res) => {
   const { total } = req.body;
 
   const options = {
-    amount: total * 100,
+    amount: total * 100, // in paise
     currency: "INR",
     receipt: "order_rcptid_" + Date.now(),
   };
@@ -41,7 +43,7 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
-// Order verification + notification
+// Verify and notify
 app.post("/verify-order", async (req, res) => {
   const { cart, delivery, paymentMethod } = req.body;
 
@@ -75,6 +77,7 @@ ${paymentText}`.trim();
       to: process.env.WHATSAPP_TO,
       body: fullMessage,
     });
+    console.log("✅ WhatsApp message sent.");
 
     // Email via Nodemailer
     const transporter = nodemailer.createTransport({
@@ -91,6 +94,7 @@ ${paymentText}`.trim();
       subject: `New Order from ${delivery.name}`,
       text: fullMessage,
     });
+    console.log("✅ Email sent.");
 
     res.json({ ok: true });
   } catch (err) {
@@ -99,10 +103,11 @@ ${paymentText}`.trim();
   }
 });
 
-// Home route
+// Serve homepage
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
