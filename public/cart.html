@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cart – DRIPPED</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      background-color: #000;
+      color: #fff;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      border-bottom: 1px solid #333;
+    }
+
+    header h1 {
+      font-size: 2em;
+      color: #d8ff3e;
+    }
+
+    .home-btn {
+      background-color: transparent;
+      color: #fff;
+      border: 2px solid #d8ff3e;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .home-btn:hover {
+      background-color: #d8ff3e;
+      color: #000;
+    }
+
+    .cart-wrapper {
+      max-width: 800px;
+      margin: 60px auto;
+      background-color: #111;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(255, 255, 255, 0.05);
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid #444;
+      flex-wrap: wrap;
+    }
+
+    .cart-item span {
+      font-size: 1.1rem;
+      color: #fff;
+    }
+
+    .item-name {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .item-name small {
+      color: #aaa;
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .remove-btn {
+      background: none;
+      color: #ff4d4d;
+      border: none;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    .total-section {
+      text-align: right;
+      font-size: 1.4em;
+      margin-top: 30px;
+      color: #d8ff3e;
+      font-weight: bold;
+    }
+
+    .checkout-btn {
+      display: block;
+      margin: 30px auto 0;
+      padding: 14px 40px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #000;
+      background-color: #d8ff3e;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .checkout-btn:hover {
+      background-color: #c2e400;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 80px 0;
+      font-size: 1.2rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Your Cart</h1>
+    <a href="index.html">
+  <img src="images/home.png" alt="Home" style="height: 32px; cursor: pointer;" />
+</a>
+  </header>
+  
+
+
+  <div class="cart-wrapper">
+    <div id="cartItems"></div>
+    <div class="total-section">Total: Rs <span id="total">0</span></div>
+    <button class="checkout-btn" onclick="location.href='checkout.html'">Proceed to Checkout</button>
+  </div>
+
+  <script>
+    const cartItemsContainer = document.getElementById('cartItems');
+    const totalEl = document.getElementById('total');
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    function renderCart() {
+      if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '<div class="empty-cart">Your cart is empty 😕</div>';
+        document.querySelector('.checkout-btn').style.display = 'none';
+        totalEl.innerText = '0';
+        return;
+      }
+
+      let total = 0;
+      cartItemsContainer.innerHTML = '';
+      cart.forEach((item, index) => {
+        total += item.price;
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <span class="item-name">
+            ${item.name}
+            ${item.size ? `<small>Size: ${item.size}</small>` : ''}
+          </span>
+          <span>Rs ${item.price} 
+            <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+          </span>
+        `;
+        cartItemsContainer.appendChild(div);
+      });
+
+      totalEl.innerText = total;
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    renderCart();
+  </script>
+</body>
+</html>

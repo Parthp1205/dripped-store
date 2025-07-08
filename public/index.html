@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DR!PPED – Premium Streetwear</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    body {
+      background-color: #000;
+      color: #fff;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      border-bottom: 1px solid #333;
+    }
+
+    .logo {
+      font-size: 1.8em;
+      font-weight: 700;
+      color: #d8ff3e;
+    }
+
+    .account-cart {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .account-cart img {
+      cursor: pointer;
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 20px 40px;
+      background: #111;
+    }
+
+    .hero h1 {
+      font-size: 3.5em;
+      font-weight: 700;
+    }
+
+    .hero p {
+      font-size: 1.2em;
+      margin: 20px 0;
+    }
+
+    .cta {
+      font-size: 1em;
+      background: transparent;
+      border: 2px solid #d8ff3e;
+      color: #d8ff3e;
+      padding: 12px 30px;
+      text-transform: uppercase;
+      border-radius: 8px;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    .cta:hover {
+      background: #d8ff3e;
+      color: #000;
+    }
+
+    .products {
+      padding: 60px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
+    }
+
+    .product-card {
+      background: #111;
+      border-radius: 16px;
+      overflow: hidden;
+      text-align: center;
+      padding: 24px;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.05);
+      transition: transform 0.3s;
+    }
+
+    .product-card:hover {
+      transform: scale(1.03);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 300px;
+      object-fit: contain;
+      background-color: #000;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .product-card h3 {
+      margin: 20px 0 10px;
+      font-size: 1.4em;
+      color: #fff;
+    }
+
+    .product-card p {
+      font-size: 1.1em;
+      margin-bottom: 12px;
+    }
+
+    .product-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .size-select {
+      padding: 10px 16px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      background-color: #222;
+      color: #fff;
+    }
+
+    .add-btn {
+      background: #d8ff3e;
+      color: #000;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .add-btn:hover {
+      background: #c2e400;
+    }
+
+    footer {
+      padding: 60px 40px;
+      background: #111;
+      color: #ccc;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      font-size: 0.9em;
+    }
+
+    footer div {
+      margin-bottom: 20px;
+    }
+
+    footer h4 {
+      color: #d8ff3e;
+      margin-bottom: 10px;
+    }
+
+    footer p {
+      cursor: pointer;
+    }
+
+    /* Modal Styles */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #111;
+      padding: 30px 40px;
+      border-radius: 10px;
+      max-width: 600px;
+      color: #eee;
+      position: relative;
+      box-shadow: 0 0 20px rgba(216, 255, 62, 0.3);
+    }
+
+    .modal-content h2 {
+      color: #d8ff3e;
+      margin-bottom: 15px;
+    }
+
+    .modal-content p {
+      line-height: 1.6;
+      color: #ccc;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 1.4em;
+      cursor: pointer;
+      color: #d8ff3e;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">DR!PPED</div>
+    <div class="account-cart">
+      <span onclick="window.location.href='cart.html'">
+        <img src="images/cart.png" alt="Cart" height="24">
+      </span>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>New Season Arrivals</h1>
+    <p>Amazing Collections <strong> DR!PPED</strong></p>
+    <button class="cta" onclick="document.getElementById('productList').scrollIntoView()">Shop Now</button>
+  </section>
+
+  <section class="products" id="productList"></section>
+
+  <footer>
+    <div>
+      <h4>Contact</h4>
+      <p>info@dripped.com</p>
+      <p>Tel: 123-456-7890</p>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <p onclick="openModal('about')">About Us</p>
+    </div>
+    <div>
+      <h4>Help</h4>
+      <p onclick="openModal('shipping')">Shipping</p>
+      <p onclick="openModal('returns')">Returns</p>
+    </div>
+  </footer>
+
+  <!-- Modals -->
+  <div class="modal" id="aboutModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('about')">✖</span>
+      <h2>About DR!PPED</h2>
+      <p>At <strong>DR!PPED</strong>, all t-shirts are manufactured and printed in-house with premium fabrics and unique graphics. We offer bold, street-ready fashion and fast delivery directly to your door.</p>
+    </div>
+  </div>
+
+  <div class="modal" id="shippingModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('shipping')">✖</span>
+      <h2>Shipping Info</h2>
+      <p>We deliver across India within 5–7 business days. All products are packed securely with care. For urgent queries, contact us at:</p>
+      <p><strong>📞 WhatsApp:</strong> +91-98765-43210</p>
+      <p><strong>📧 Email:</strong> support@dripped.com</p>
+    </div>
+  </div>
+
+  <div class="modal" id="returnsModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('returns')">✖</span>
+      <h2>Returns & Exchanges</h2>
+      <p>We offer hassle-free 7-day returns and size exchanges. Return shipping is your responsibility. Contact us for help:</p>
+      <p><strong>📞 WhatsApp:</strong> +91-98765-43210</p>
+      <p><strong>📧 Email:</strong> support@dripped.com</p>
+    </div>
+  </div>
+
+  <script>
+    const products = [
+      { name: "LOVERS CLUB", price: 399, img: "images/1.png" },
+      { name: "I WAS BLIND", price: 399, img: "images/2.png" },
+      { name: "WITNESSES", price: 399, img: "images/3.png" },
+      { name: "STRIVING", price: 399, img: "images/4.png" },
+      { name: "SPIDERMAN", price: 399, img: "images/5.png" },
+      { name: "LIGHT WEIGHT BABY", price: 399, img: "images/6.png" },
+      { name: "ANTIHERO DEADPOOL", price: 399, img: "images/7.png" },
+      { name: "SEEDHE MAUTH", price: 399, img: "images/8.png" },
+      { name: "AMERICAN PSYCHO", price: 399, img: "images/9.png" },
+      { name: "BERSERK GYM WEAR", price: 399, img: "images/10.png" },
+      { name: "LANA DEL REY", price: 399, img: "images/11.png" },
+      { name: "SMOKING GIRL", price: 399, img: "images/12.png" }
+    ];
+
+    const productList = document.querySelector('.products');
+
+    products.forEach(product => {
+      const div = document.createElement('div');
+      div.className = 'product-card';
+      div.innerHTML = `
+        <img src="${product.img}" alt="${product.name}" onclick="showImage('${product.img}')"/>
+        <h3>${product.name}</h3>
+        <p>Rs ${product.price}</p>
+        <div class="product-controls">
+          <select class="size-select" id="size-${product.name}">
+            <option value="">Select Size</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+          </select>
+          <button class="add-btn" onclick='addToCart("${product.name}", ${product.price}, "size-${product.name}")'>Add to Cart</button>
+        </div>
+      `;
+      productList.appendChild(div);
+    });
+
+    function addToCart(name, price, sizeId) {
+      const size = document.getElementById(sizeId).value;
+      if (!size) {
+        alert("Please select a size.");
+        return;
+      }
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cart.push({ name, price, size });
+      localStorage.setItem('cart', JSON.stringify(cart));
+      alert(`${name} (Size: ${size}) added to cart.`);
+    }
+
+    function showImage(imgSrc) {
+      const modal = document.createElement('div');
+      modal.classList.add('modal', 'active');
+      modal.innerHTML = `
+        <div class="modal-content" style="padding:0; background:transparent; box-shadow:none;">
+          <span class="close-btn" onclick="this.parentElement.parentElement.remove()">✖</span>
+          <img src="${imgSrc}" style="max-width:90vw; max-height:90vh; border-radius:12px;" />
+        </div>`;
+      document.body.appendChild(modal);
+    }
+
+    function openModal(type) {
+      document.getElementById(type + "Modal").classList.add("active");
+    }
+
+    function closeModal(type) {
+      document.getElementById(type + "Modal").classList.remove("active");
+    }
+  </script>
+</body>
+</html>
