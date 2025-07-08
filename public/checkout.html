@@ -6,6 +6,7 @@
   <title>Checkout – DRIPPED</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script defer src="checkout.js"></script> <!-- Link to external JS -->
   <style>
     * {
       margin: 0;
@@ -30,21 +31,6 @@
     header h1 {
       font-size: 2em;
       color: #d8ff3e;
-    }
-
-    .home-btn {
-      background-color: transparent;
-      color: #fff;
-      border: 2px solid #d8ff3e;
-      padding: 10px 20px;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: 0.3s;
-    }
-
-    .home-btn:hover {
-      background-color: #d8ff3e;
-      color: #000;
     }
 
     .checkout-container {
@@ -111,8 +97,8 @@
   <header>
     <h1>Checkout</h1>
     <a href="index.html">
-  <img src="images/home.png" alt="Home" style="height: 32px; cursor: pointer;" />
-</a>
+      <img src="images/home.png" alt="Home" style="height: 32px; cursor: pointer;" />
+    </a>
   </header>
 
   <div class="checkout-container">
@@ -128,38 +114,5 @@
       <button type="submit">Pay Rs <span id="amount">0</span></button>
     </form>
   </div>
-
-  <script>
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
-    document.getElementById("amount").innerText = total;
-
-    const form = document.getElementById('checkoutForm');
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      const options = {
-        key: "rzp_test_YourKeyHere", // Replace with your Razorpay key
-        amount: total * 100,
-        currency: "INR",
-        name: "DRIPPED",
-        description: "T-shirt Purchase",
-        handler: function (response) {
-          localStorage.removeItem('cart');
-          window.location.href = "success.html";
-        },
-        prefill: {
-          name: form.name.value,
-          contact: form.phone.value,
-        },
-        theme: {
-          color: "#d8ff3e"
-        }
-      };
-
-      const rzp = new Razorpay(options);
-      rzp.open();
-    });
-  </script>
 </body>
 </html>
