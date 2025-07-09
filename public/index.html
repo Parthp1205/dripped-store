@@ -37,9 +37,6 @@
     }
 
     .hero {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       text-align: center;
       padding: 100px 20px 40px;
       background: #111;
@@ -47,6 +44,12 @@
 
     .hero h1 {
       font-size: 3.5em;
+      font-weight: 700;
+    }
+
+    .hero p {
+      font-size: 1.2em;
+      margin: 20px 0;
     }
 
     .cta {
@@ -55,7 +58,9 @@
       border: 2px solid #d8ff3e;
       color: #d8ff3e;
       padding: 12px 30px;
+      text-transform: uppercase;
       border-radius: 8px;
+      transition: 0.3s;
       cursor: pointer;
     }
 
@@ -74,8 +79,14 @@
     .product-card {
       background: #111;
       border-radius: 16px;
-      text-align: center;
       padding: 24px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.05);
+      transition: transform 0.3s;
+    }
+
+    .product-card:hover {
+      transform: scale(1.03);
     }
 
     .product-card img {
@@ -83,8 +94,19 @@
       height: 300px;
       object-fit: contain;
       border-radius: 12px;
-      background: #000;
       cursor: pointer;
+      background-color: #000;
+    }
+
+    .product-card h3 {
+      margin: 20px 0 10px;
+      font-size: 1.4em;
+      color: #fff;
+    }
+
+    .product-card p {
+      font-size: 1.1em;
+      margin-bottom: 12px;
     }
 
     .product-controls {
@@ -92,69 +114,87 @@
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      margin-top: 10px;
     }
 
-    .size-select, .quantity-wrapper {
+    .size-select {
       padding: 10px 16px;
       font-size: 1em;
       border-radius: 6px;
+      border: none;
+      outline: none;
       background-color: #222;
       color: #fff;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quantity-control button {
+      background: #d8ff3e;
       border: none;
+      padding: 6px 12px;
+      font-size: 1em;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .quantity-control span {
+      min-width: 20px;
+      text-align: center;
+      font-size: 1.1em;
     }
 
     .add-btn {
       background: #d8ff3e;
       color: #000;
+      border: none;
       padding: 12px 30px;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
-      border: none;
+      transition: background 0.3s;
     }
 
     .add-btn:hover {
       background: #c2e400;
     }
 
-    .qty-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .qty-controls button {
-      background-color: #333;
-      color: #fff;
-      border: none;
-      padding: 4px 12px;
-      font-size: 1rem;
-      cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .qty-controls span {
-      min-width: 24px;
-      text-align: center;
+    .notification {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #d8ff3e;
+      color: #000;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-weight: bold;
+      display: none;
+      z-index: 1000;
     }
 
     footer {
+      padding: 60px 40px;
       background: #111;
-      padding: 40px;
+      color: #ccc;
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
-      color: #ccc;
+      font-size: 0.9em;
     }
 
     footer h4 {
       color: #d8ff3e;
+      margin-bottom: 10px;
     }
 
     footer p {
-      margin-top: 4px;
       cursor: pointer;
+      margin: 5px 0;
     }
   </style>
 </head>
@@ -162,7 +202,9 @@
   <header>
     <div class="logo">DR!PPED</div>
     <div class="account-cart">
-      <img src="images/cart.png" alt="Cart" height="24" onclick="window.location.href='cart.html'">
+      <span onclick="window.location.href='cart.html'">
+        <img src="images/cart.png" alt="Cart" height="24">
+      </span>
     </div>
   </header>
 
@@ -174,20 +216,22 @@
 
   <section class="products" id="productList"></section>
 
+  <div class="notification" id="notif">Item added to cart</div>
+
   <footer>
     <div>
       <h4>Contact</h4>
       <p>drippedstreetwear@gmail.com</p>
-      <p>ph: +91 98936 64934</p>
+      <p>ph: +919893664934</p>
     </div>
     <div>
       <h4>Company</h4>
-      <p>About Us</p>
+      <p onclick="alert('We design and ship from our in-house studio. Fast delivery & premium cotton guaranteed.')">About Us</p>
     </div>
     <div>
       <h4>Help</h4>
-      <p>Shipping</p>
-      <p>Returns</p>
+      <p onclick="alert('Delivery in 3-5 days. For urgent queries:\n📞 WhatsApp: +919893664934\n📧 Email: drippedstreetwear@gmail.com')">Shipping</p>
+      <p onclick="alert('We offer hassle-free 3-5 day returns and size exchanges. Contact us:\n📞 WhatsApp: +919893664934\n📧 Email: drippedstreetwear@gmail.com')">Returns</p>
     </div>
   </footer>
 
@@ -207,59 +251,57 @@
       { name: "SMOKING GIRL", price: 399, img: "images/12.png" }
     ];
 
-    const productList = document.getElementById("productList");
+    const productList = document.querySelector('.products');
 
-    products.forEach((product, i) => {
-      const id = `prod-${i}`;
-      const card = document.createElement("div");
-      card.className = "product-card";
-      card.innerHTML = `
-        <img src="${product.img}" alt="${product.name}">
+    products.forEach((product, index) => {
+      const div = document.createElement('div');
+      div.className = 'product-card';
+      div.innerHTML = `
+        <img src="${product.img}" alt="${product.name}" />
         <h3>${product.name}</h3>
         <p>Rs ${product.price}</p>
         <div class="product-controls">
-          <select class="size-select" id="size-${id}">
+          <select class="size-select" id="size-${index}">
             <option value="">Select Size</option>
-            <option>S</option>
-            <option>M</option>
-            <option>L</option>
-            <option>XL</option>
-            <option>XXL</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
           </select>
-          <div class="qty-controls">
-            <button onclick="decreaseQty('${id}')">-</button>
-            <span id="qty-${id}">1</span>
-            <button onclick="increaseQty('${id}')">+</button>
+          <div class="quantity-control">
+            <button onclick="updateQty(${index}, -1)">–</button>
+            <span id="qty-${index}">1</span>
+            <button onclick="updateQty(${index}, 1)">+</button>
           </div>
-          <button class="add-btn" onclick="addToCart('${product.name}', ${product.price}, 'size-${id}', 'qty-${id}')">Add to Cart</button>
+          <button class="add-btn" onclick='addToCart("${product.name}", ${product.price}, "size-${index}", "qty-${index}")'>Add to Cart</button>
         </div>
       `;
-      productList.appendChild(card);
+      productList.appendChild(div);
     });
 
-    function increaseQty(id) {
-      const qtyEl = document.getElementById(`qty-${id}`);
-      let qty = parseInt(qtyEl.textContent);
-      if (qty < 10) qtyEl.textContent = qty + 1;
-    }
-
-    function decreaseQty(id) {
-      const qtyEl = document.getElementById(`qty-${id}`);
-      let qty = parseInt(qtyEl.textContent);
-      if (qty > 1) qtyEl.textContent = qty - 1;
+    function updateQty(index, delta) {
+      const qtySpan = document.getElementById(`qty-${index}`);
+      let qty = parseInt(qtySpan.textContent);
+      qty = Math.max(1, qty + delta);
+      qtySpan.textContent = qty;
     }
 
     function addToCart(name, price, sizeId, qtyId) {
       const size = document.getElementById(sizeId).value;
       const qty = parseInt(document.getElementById(qtyId).textContent);
       if (!size) return alert("Please select a size.");
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      cart.push({ name, price, size, quantity: qty });
+      localStorage.setItem('cart', JSON.stringify(cart));
+      showNotification(`${name} (x${qty}, ${size}) added to cart`);
+    }
 
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      cart.push({ name, price, size, qty });
-      localStorage.setItem("cart", JSON.stringify(cart));
-
-      // Optionally update cart icon or toast
-      console.log(`Added ${qty} x ${name} (Size: ${size}) to cart.`);
+    function showNotification(msg) {
+      const notif = document.getElementById("notif");
+      notif.textContent = msg;
+      notif.style.display = "block";
+      setTimeout(() => notif.style.display = "none", 2000);
     }
   </script>
 </body>
