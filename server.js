@@ -7,25 +7,25 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
+const DELIVERY_CHARGE = 120;
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
- // ✅ Fixed static folder path
 
-// Razorpay setup
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// Create order
+// ✅ Create order for Online Payment (adds delivery charge once here)
 app.post("/create-order", async (req, res) => {
-  const { total } = req.body;
+  const { total } = req.body; // total = itemTotal (no delivery included)
+
+  const totalWithDelivery = total + DELIVERY_CHARGE;
 
   const options = {
-    amount: total * 100, // in paise
+    amount: totalWithDelivery * 100, // in paise
     currency: "INR",
     receipt: "order_rcptid_" + Date.now(),
   };
@@ -44,7 +44,7 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
-// Verify and notify
+// ✅ Used for both COD and Online - Total calculated properly here too
 app.post("/verify-order", async (req, res) => {
   const { cart, delivery, paymentMethod } = req.body;
 
@@ -52,7 +52,9 @@ app.post("/verify-order", async (req, res) => {
     return res.status(400).json({ ok: false, error: "Missing data" });
   }
 
-  const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+  const itemTotal = cart.reduce((sum, item) => sum + item.price, 0);
+  const finalTotal = itemTotal + DELIVERY_CHARGE;
+
   const itemList = cart.map(i => `• ${i.name} (Size: ${i.size || '-'}) – ₹${i.price}`).join('\n');
   const paymentText = paymentMethod === 'COD'
     ? '🧾 Payment Method: Cash on Delivery (COD)'
@@ -67,11 +69,12 @@ app.post("/verify-order", async (req, res) => {
 🧾 Items:
 ${itemList}
 
-💰 Total: ₹${totalAmount}
+📦 Delivery Charge: ₹${DELIVERY_CHARGE}
+💰 Item Total: ₹${itemTotal}
+💳 Final Total: ₹${finalTotal}
 ${paymentText}`.trim();
 
   try {
-    // WhatsApp via Twilio
     const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
     await client.messages.create({
       from: process.env.WHATSAPP_FROM,
@@ -80,7 +83,6 @@ ${paymentText}`.trim();
     });
     console.log("✅ WhatsApp message sent.");
 
-    // Email via Nodemailer
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -104,11 +106,10 @@ ${paymentText}`.trim();
   }
 });
 
-// Serve homepage
+// Homepage
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));

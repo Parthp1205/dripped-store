@@ -1,75 +1,60 @@
-const cart = JSON.parse(localStorage.getItem('cart')) || [];
-const total = cart.reduce((sum, item) => sum + item.price, 0);
-document.getElementById("amount").innerText = total;
+const DELIVERY_CHARGE = 120;
+const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+const checkoutForm = document.getElementById('checkoutForm');
+const amountEl = document.getElementById('amount');
 
-const form = document.getElementById('checkoutForm');
+const itemTotal = cart.reduce((sum, item) => sum + item.price, 0);
+const finalTotal = itemTotal + DELIVERY_CHARGE;
+amountEl.textContent = finalTotal;
 
-form.addEventListener('submit', async function (e) {
+checkoutForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  const formData = new FormData(checkoutForm);
+  const delivery = Object.fromEntries(formData.entries());
+  const paymentMethod = formData.get('payment');
 
-  const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value;
-  if (!paymentMethod) {
-    alert("Please select a payment method.");
-    return;
-  }
-
-  const delivery = {
-    name: form.name.value,
-    phone: form.phone.value,
-    address: form.address.value,
-    city: form.city.value,
-    state: form.state.value,
-    pincode: form.pincode.value,
-  };
-
-  if (paymentMethod === "COD") {
-    await submitOrder(delivery, cart, paymentMethod);
-    return;
-  }
-
-  // Online payment via Razorpay
-  const orderRes = await fetch("https://dripped-store-1.onrender.com/create-order", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ total }),
-  });
-
-  const orderData = await orderRes.json();
-
-  const options = {
-    key: orderData.key,
-    amount: orderData.amount,
-    currency: "INR",
-    name: "DRIPPED",
-    description: "T-shirt Purchase",
-    handler: async function (response) {
-      await submitOrder(delivery, cart, "Online");
-    },
-    prefill: {
-      name: form.name.value,
-      contact: form.phone.value,
-    },
-    theme: {
-      color: "#d8ff3e"
-    }
-  };
-
-  const rzp = new Razorpay(options);
-  rzp.open();
-});
-
-async function submitOrder(delivery, cart, paymentMethod) {
-  const res = await fetch("https://dripped-store-1.onrender.com/verify-order", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cart, delivery, paymentMethod }),
-  });
-
-  const result = await res.json();
-  if (result.ok) {
+  if (paymentMethod === 'COD') {
+    await fetch('/verify-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cart, delivery, paymentMethod })
+    });
     localStorage.removeItem('cart');
-    window.location.href = "success.html";
+    window.location.href = 'success.html';
   } else {
-    alert("Order placed but failed to notify seller.");
+    const response = await fetch('/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ total: itemTotal }) // only send item total
+    });
+
+    const data = await response.json();
+    const options = {
+      key: data.key,
+      amount: data.amount,
+      currency: "INR",
+      name: "DRIPPED",
+      description: "Premium Streetwear",
+      order_id: data.id,
+      handler: async function () {
+        await fetch('/verify-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cart, delivery, paymentMethod })
+        });
+        localStorage.removeItem('cart');
+        window.location.href = 'success.html';
+      },
+      prefill: {
+        name: delivery.name,
+        contact: delivery.phone
+      },
+      theme: {
+        color: "#d8ff3e"
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
   }
-}
+});

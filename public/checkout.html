@@ -8,73 +8,30 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script defer src="checkout.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Montserrat', sans-serif;
-    }
-
-    body {
-      background-color: #000;
-      color: #fff;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-      border-bottom: 1px solid #333;
-    }
-
-    header h1 {
-      font-size: 2em;
-      color: #d8ff3e;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+    body { background-color: #000; color: #fff; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid #333; }
+    header h1 { font-size: 2em; color: #d8ff3e; }
 
     .checkout-container {
-      max-width: 600px;
-      margin: 50px auto;
-      background-color: #111;
-      padding: 40px;
-      border-radius: 16px;
+      max-width: 600px; margin: 50px auto; background-color: #111;
+      padding: 40px; border-radius: 16px;
       box-shadow: 0 10px 30px rgba(255, 255, 255, 0.05);
     }
 
-    form {
-      display: flex;
-      flex-direction: column;
-    }
-
+    form { display: flex; flex-direction: column; }
     input, textarea {
-      background-color: #000;
-      color: #fff;
+      background-color: #000; color: #fff;
       border: 1px solid #d8ff3e;
-      padding: 14px;
-      margin-bottom: 20px;
-      font-size: 1rem;
-      border-radius: 8px;
+      padding: 14px; margin-bottom: 20px;
+      font-size: 1rem; border-radius: 8px;
     }
 
-    input:focus, textarea:focus {
-      border-color: #fff;
-      outline: none;
-    }
+    input:focus, textarea:focus { border-color: #fff; outline: none; }
+    textarea { resize: vertical; min-height: 100px; }
 
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-
-    .two-col {
-      display: flex;
-      gap: 20px;
-    }
-
-    .two-col input {
-      flex: 1;
-    }
+    .two-col { display: flex; gap: 20px; }
+    .two-col input { flex: 1; }
 
     .payment-methods {
       margin: 20px 0;
@@ -83,9 +40,7 @@
       flex-wrap: wrap;
     }
 
-    .payment-methods label {
-      cursor: pointer;
-    }
+    .payment-methods label { cursor: pointer; }
 
     button[type="submit"] {
       background-color: #d8ff3e;
@@ -99,9 +54,7 @@
       transition: background-color 0.3s ease;
     }
 
-    button[type="submit"]:hover {
-      background-color: #c2e400;
-    }
+    button[type="submit"]:hover { background-color: #c2e400; }
   </style>
 </head>
 <body>
@@ -123,13 +76,12 @@
       </div>
       <input name="pincode" placeholder="Pincode" required />
 
-      <!-- Payment options -->
       <div class="payment-methods">
         <label><input type="radio" name="payment" value="COD" required /> Cash on Delivery</label>
         <label><input type="radio" name="payment" value="Online" /> Pay Online</label>
       </div>
 
-      <button type="submit">Pay Rs <span id="amount">0</span></button>
+      <button type="submit">Pay ₹<span id="amount">0</span></button>
     </form>
   </div>
 </body>
