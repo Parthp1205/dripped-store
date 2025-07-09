@@ -11,21 +11,23 @@ const DELIVERY_CHARGE = 120;
 
 app.use(cors());
 app.use(express.json());
+
+// ✅ Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// ✅ Razorpay
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// ✅ Create order for Online Payment (adds delivery charge once here)
+// ✅ Create order route
 app.post("/create-order", async (req, res) => {
-  const { total } = req.body; // total = itemTotal (no delivery included)
-
+  const { total } = req.body;
   const totalWithDelivery = total + DELIVERY_CHARGE;
 
   const options = {
-    amount: totalWithDelivery * 100, // in paise
+    amount: totalWithDelivery * 100,
     currency: "INR",
     receipt: "order_rcptid_" + Date.now(),
   };
@@ -44,7 +46,7 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
-// ✅ Used for both COD and Online - Total calculated properly here too
+// ✅ Verify order route
 app.post("/verify-order", async (req, res) => {
   const { cart, delivery, paymentMethod } = req.body;
 
@@ -106,10 +108,12 @@ ${paymentText}`.trim();
   }
 });
 
-// Homepage
+// ✅ Serve index.html on root
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`✅ Server running at http://localhost:${PORT}`);
+});
