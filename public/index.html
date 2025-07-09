@@ -127,7 +127,7 @@
       gap: 12px;
     }
 
-    .size-select {
+    .size-select, .qty-input {
       padding: 10px 16px;
       font-size: 1em;
       border-radius: 6px;
@@ -135,6 +135,11 @@
       outline: none;
       background-color: #222;
       color: #fff;
+    }
+
+    .qty-input {
+      width: 60px;
+      text-align: center;
     }
 
     .add-btn {
@@ -332,22 +337,30 @@
             <option value="XL">XL</option>
             <option value="XXL">XXL</option>
           </select>
-          <button class="add-btn" onclick='addToCart("${product.name}", ${product.price}, "size-${product.name}")'>Add to Cart</button>
+          <input type="number" class="qty-input" id="qty-${product.name}" value="1" min="1"/>
+          <button class="add-btn" onclick='addToCart("${product.name}", ${product.price}, "size-${product.name}", "qty-${product.name}")'>Add to Cart</button>
         </div>
       `;
       productList.appendChild(div);
     });
 
-    function addToCart(name, price, sizeId) {
+    function addToCart(name, price, sizeId, qtyId) {
       const size = document.getElementById(sizeId).value;
+      const quantity = parseInt(document.getElementById(qtyId).value);
+
       if (!size) return alert("Please select a size.");
+      if (!quantity || quantity < 1) return alert("Enter valid quantity.");
+
       const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      cart.push({ name, price, size });
+
+      for (let i = 0; i < quantity; i++) {
+        cart.push({ name, price, size });
+      }
+
       localStorage.setItem('cart', JSON.stringify(cart));
 
-      // ✅ Toast message instead of alert
       const toast = document.createElement('div');
-      toast.textContent = `${name} (Size: ${size}) added to cart`;
+      toast.textContent = `${quantity} × ${name} (Size: ${size}) added to cart`;
       toast.style.position = 'fixed';
       toast.style.bottom = '30px';
       toast.style.left = '50%';
