@@ -12,6 +12,8 @@ const DELIVERY_CHARGE = 120;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
+
 
 
 const razorpay = new Razorpay({
