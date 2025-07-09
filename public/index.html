@@ -300,18 +300,18 @@
 
   <script>
     const products = [
-      { name: "LOVERS CLUB", price: 399, img: "/images/1.png" },
-      { name: "I WAS BLIND", price: 399, img: "/images/2.png" },
-      { name: "WITNESSES", price: 399, img: "/images/3.png" },
-      { name: "STRIVING", price: 399, img: "/images/4.png" },
-      { name: "SPIDERMAN", price: 399, img: "/images/5.png" },
-      { name: "LIGHT WEIGHT BABY", price: 399, img: "/images/6.png" },
-      { name: "ANTIHERO DEADPOOL", price: 399, img: "/images/7.png" },
-      { name: "SEEDHE MAUTH", price: 399, img: "/images/8.png" },
-      { name: "AMERICAN PSYCHO", price: 399, img: "/images/9.png" },
-      { name: "BERSERK GYM WEAR", price: 399, img: "/images/10.png" },
-      { name: "LANA DEL REY", price: 399, img: "/images/11.png" },
-      { name: "SMOKING GIRL", price: 399, img: "/images/12.png" }
+      { name: "LOVERS CLUB", price: 399, img: "images/1.png" },
+      { name: "I WAS BLIND", price: 399, img: "images/2.png" },
+      { name: "WITNESSES", price: 399, img: "images/3.png" },
+      { name: "STRIVING", price: 399, img: "images/4.png" },
+      { name: "SPIDERMAN", price: 399, img: "images/5.png" },
+      { name: "LIGHT WEIGHT BABY", price: 399, img: "images/6.png" },
+      { name: "ANTIHERO DEADPOOL", price: 399, img: "images/7.png" },
+      { name: "SEEDHE MAUTH", price: 399, img: "images/8.png" },
+      { name: "AMERICAN PSYCHO", price: 399, img: "images/9.png" },
+      { name: "BERSERK GYM WEAR", price: 399, img: "images/10.png" },
+      { name: "LANA DEL REY", price: 399, img: "images/11.png" },
+      { name: "SMOKING GIRL", price: 399, img: "images/12.png" }
     ];
 
     const productList = document.querySelector('.products');
@@ -344,7 +344,23 @@
       const cart = JSON.parse(localStorage.getItem('cart')) || [];
       cart.push({ name, price, size });
       localStorage.setItem('cart', JSON.stringify(cart));
-      alert(`${name} (Size: ${size}) added to cart.`);
+
+      // ✅ Toast message instead of alert
+      const toast = document.createElement('div');
+      toast.textContent = `${name} (Size: ${size}) added to cart`;
+      toast.style.position = 'fixed';
+      toast.style.bottom = '30px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.background = '#d8ff3e';
+      toast.style.color = '#000';
+      toast.style.padding = '12px 24px';
+      toast.style.borderRadius = '6px';
+      toast.style.zIndex = '9999';
+      toast.style.fontWeight = 'bold';
+      toast.style.boxShadow = '0 4px 10px rgba(0,0,0,0.4)';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2500);
     }
 
     function showImage(imgSrc) {
