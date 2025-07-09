@@ -171,19 +171,24 @@
         return;
       }
 
-      cartContainer.innerHTML = cart.map((item, index) => `
-        <div class="cart-item">
-          <span class="item-name">
-            ${item.name}
-            ${item.size ? `<small>Size: ${item.size}</small>` : ''}
-          </span>
-          <span>Rs ${item.price} 
-            <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
-          </span>
-        </div>
-      `).join('');
+      let itemTotal = 0;
+      cartContainer.innerHTML = cart.map((item, index) => {
+        const totalPrice = item.price * (item.qty || 1);
+        itemTotal += totalPrice;
+        return `
+          <div class="cart-item">
+            <span class="item-name">
+              ${item.name}
+              ${item.size ? `<small>Size: ${item.size}</small>` : ''}
+              ${item.qty ? `<small>Quantity: ${item.qty}</small>` : ''}
+            </span>
+            <span>Rs ${totalPrice} 
+              <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+            </span>
+          </div>
+        `;
+      }).join('');
 
-      const itemTotal = cart.reduce((sum, item) => sum + item.price, 0);
       itemTotalSpan.textContent = itemTotal;
       finalTotalSpan.textContent = itemTotal + DELIVERY_CHARGE;
     }

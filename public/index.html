@@ -32,11 +32,21 @@
       color: #d8ff3e;
     }
 
+    .account-cart {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
     .account-cart img {
       cursor: pointer;
     }
 
     .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
       padding: 100px 20px 40px;
       background: #111;
@@ -79,8 +89,9 @@
     .product-card {
       background: #111;
       border-radius: 16px;
-      padding: 24px;
+      overflow: hidden;
       text-align: center;
+      padding: 24px;
       box-shadow: 0 4px 15px rgba(255, 255, 255, 0.05);
       transition: transform 0.3s;
     }
@@ -93,9 +104,9 @@
       width: 100%;
       height: 300px;
       object-fit: contain;
+      background-color: #000;
       border-radius: 12px;
       cursor: pointer;
-      background-color: #000;
     }
 
     .product-card h3 {
@@ -113,7 +124,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .size-select {
@@ -126,26 +137,29 @@
       color: #fff;
     }
 
-    .quantity-control {
+    .qty-control {
       display: flex;
-      align-items: center;
       gap: 10px;
+      align-items: center;
     }
 
-    .quantity-control button {
+    .qty-btn {
       background: #d8ff3e;
+      color: #000;
       border: none;
-      padding: 6px 12px;
-      font-size: 1em;
-      font-weight: bold;
-      border-radius: 4px;
+      padding: 6px 10px;
+      border-radius: 6px;
       cursor: pointer;
     }
 
-    .quantity-control span {
-      min-width: 20px;
+    .qty-control input {
+      width: 40px;
       text-align: center;
-      font-size: 1.1em;
+      border: 1px solid #d8ff3e;
+      background: #000;
+      color: #fff;
+      border-radius: 6px;
+      font-weight: bold;
     }
 
     .add-btn {
@@ -163,20 +177,6 @@
       background: #c2e400;
     }
 
-    .notification {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #d8ff3e;
-      color: #000;
-      padding: 12px 20px;
-      border-radius: 6px;
-      font-weight: bold;
-      display: none;
-      z-index: 1000;
-    }
-
     footer {
       padding: 60px 40px;
       background: #111;
@@ -187,6 +187,10 @@
       font-size: 0.9em;
     }
 
+    footer div {
+      margin-bottom: 20px;
+    }
+
     footer h4 {
       color: #d8ff3e;
       margin-bottom: 10px;
@@ -194,7 +198,64 @@
 
     footer p {
       cursor: pointer;
-      margin: 5px 0;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #111;
+      padding: 30px 40px;
+      border-radius: 10px;
+      max-width: 600px;
+      color: #eee;
+      position: relative;
+      box-shadow: 0 0 20px rgba(216, 255, 62, 0.3);
+    }
+
+    .modal-content h2 {
+      color: #d8ff3e;
+      margin-bottom: 15px;
+    }
+
+    .modal-content p {
+      line-height: 1.6;
+      color: #ccc;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 1.4em;
+      cursor: pointer;
+      color: #d8ff3e;
+    }
+
+    @media (max-width: 480px) {
+      .product-card img {
+        height: 220px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .products {
+        padding: 40px 10px;
+        gap: 16px;
+      }
     }
   </style>
 </head>
@@ -216,8 +277,6 @@
 
   <section class="products" id="productList"></section>
 
-  <div class="notification" id="notif">Item added to cart</div>
-
   <footer>
     <div>
       <h4>Contact</h4>
@@ -226,12 +285,12 @@
     </div>
     <div>
       <h4>Company</h4>
-      <p onclick="alert('We design and ship from our in-house studio. Fast delivery & premium cotton guaranteed.')">About Us</p>
+      <p onclick="openModal('about')">About Us</p>
     </div>
     <div>
       <h4>Help</h4>
-      <p onclick="alert('Delivery in 3-5 days. For urgent queries:\n📞 WhatsApp: +919893664934\n📧 Email: drippedstreetwear@gmail.com')">Shipping</p>
-      <p onclick="alert('We offer hassle-free 3-5 day returns and size exchanges. Contact us:\n📞 WhatsApp: +919893664934\n📧 Email: drippedstreetwear@gmail.com')">Returns</p>
+      <p onclick="openModal('shipping')">Shipping</p>
+      <p onclick="openModal('returns')">Returns</p>
     </div>
   </footer>
 
@@ -253,15 +312,16 @@
 
     const productList = document.querySelector('.products');
 
-    products.forEach((product, index) => {
+    products.forEach(product => {
+      const id = product.name.replace(/\s+/g, '-');
       const div = document.createElement('div');
       div.className = 'product-card';
       div.innerHTML = `
-        <img src="${product.img}" alt="${product.name}" />
+        <img src="${product.img}" alt="${product.name}" onclick="showImage('${product.img}')"/>
         <h3>${product.name}</h3>
         <p>Rs ${product.price}</p>
         <div class="product-controls">
-          <select class="size-select" id="size-${index}">
+          <select class="size-select" id="size-${id}">
             <option value="">Select Size</option>
             <option value="S">S</option>
             <option value="M">M</option>
@@ -269,39 +329,65 @@
             <option value="XL">XL</option>
             <option value="XXL">XXL</option>
           </select>
-          <div class="quantity-control">
-            <button onclick="updateQty(${index}, -1)">–</button>
-            <span id="qty-${index}">1</span>
-            <button onclick="updateQty(${index}, 1)">+</button>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="changeQty('${id}', -1)">–</button>
+            <input type="number" id="qty-${id}" value="1" min="1" readonly />
+            <button class="qty-btn" onclick="changeQty('${id}', 1)">+</button>
           </div>
-          <button class="add-btn" onclick='addToCart("${product.name}", ${product.price}, "size-${index}", "qty-${index}")'>Add to Cart</button>
+          <button class="add-btn" onclick='addToCart("${product.name}", ${product.price}, "size-${id}", "qty-${id}", this)'>Add to Cart</button>
         </div>
       `;
       productList.appendChild(div);
     });
 
-    function updateQty(index, delta) {
-      const qtySpan = document.getElementById(`qty-${index}`);
-      let qty = parseInt(qtySpan.textContent);
-      qty = Math.max(1, qty + delta);
-      qtySpan.textContent = qty;
+    function changeQty(id, delta) {
+      const input = document.getElementById(`qty-${id}`);
+      let value = parseInt(input.value) || 1;
+      input.value = Math.max(1, value + delta);
     }
 
-    function addToCart(name, price, sizeId, qtyId) {
+    function addToCart(name, price, sizeId, qtyId, btn) {
       const size = document.getElementById(sizeId).value;
-      const qty = parseInt(document.getElementById(qtyId).textContent);
+      const qty = parseInt(document.getElementById(qtyId).value);
       if (!size) return alert("Please select a size.");
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      cart.push({ name, price, size, quantity: qty });
+
+      let cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const index = cart.findIndex(item => item.name === name && item.size === size);
+
+      if (index !== -1) {
+        cart[index].qty += qty;
+      } else {
+        cart.push({ name, price, size, qty });
+      }
+
       localStorage.setItem('cart', JSON.stringify(cart));
-      showNotification(`${name} (x${qty}, ${size}) added to cart`);
+
+      // Feedback
+      btn.textContent = "Added!";
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = "Add to Cart";
+        btn.disabled = false;
+      }, 1200);
     }
 
-    function showNotification(msg) {
-      const notif = document.getElementById("notif");
-      notif.textContent = msg;
-      notif.style.display = "block";
-      setTimeout(() => notif.style.display = "none", 2000);
+    function showImage(imgSrc) {
+      const modal = document.createElement('div');
+      modal.classList.add('modal', 'active');
+      modal.innerHTML = `
+        <div class="modal-content" style="padding:0; background:transparent; box-shadow:none;">
+          <span class="close-btn" onclick="this.parentElement.parentElement.remove()">✖</span>
+          <img src="${imgSrc}" style="max-width:90vw; max-height:90vh; border-radius:12px;" />
+        </div>`;
+      document.body.appendChild(modal);
+    }
+
+    function openModal(type) {
+      document.getElementById(type + "Modal").classList.add("active");
+    }
+
+    function closeModal(type) {
+      document.getElementById(type + "Modal").classList.remove("active");
     }
   </script>
 </body>
