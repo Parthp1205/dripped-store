@@ -32,12 +32,6 @@
       color: #d8ff3e;
     }
 
-    .account-cart {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
     .account-cart img {
       cursor: pointer;
     }
@@ -46,7 +40,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       text-align: center;
       padding: 100px 20px 40px;
       background: #111;
@@ -54,12 +47,6 @@
 
     .hero h1 {
       font-size: 3.5em;
-      font-weight: 700;
-    }
-
-    .hero p {
-      font-size: 1.2em;
-      margin: 20px 0;
     }
 
     .cta {
@@ -68,9 +55,7 @@
       border: 2px solid #d8ff3e;
       color: #d8ff3e;
       padding: 12px 30px;
-      text-transform: uppercase;
       border-radius: 8px;
-      transition: 0.3s;
       cursor: pointer;
     }
 
@@ -89,153 +74,87 @@
     .product-card {
       background: #111;
       border-radius: 16px;
-      overflow: hidden;
       text-align: center;
       padding: 24px;
-      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.05);
-      transition: transform 0.3s;
-    }
-
-    .product-card:hover {
-      transform: scale(1.03);
     }
 
     .product-card img {
       width: 100%;
       height: 300px;
       object-fit: contain;
-      background-color: #000;
       border-radius: 12px;
+      background: #000;
       cursor: pointer;
-    }
-
-    .product-card h3 {
-      margin: 20px 0 10px;
-      font-size: 1.4em;
-      color: #fff;
-    }
-
-    .product-card p {
-      font-size: 1.1em;
-      margin-bottom: 12px;
     }
 
     .product-controls {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
+      margin-top: 10px;
     }
 
-    .size-select, .qty-input {
+    .size-select, .quantity-wrapper {
       padding: 10px 16px;
       font-size: 1em;
       border-radius: 6px;
-      border: none;
-      outline: none;
       background-color: #222;
       color: #fff;
-    }
-
-    .qty-input {
-      width: 60px;
-      text-align: center;
+      border: none;
     }
 
     .add-btn {
       background: #d8ff3e;
       color: #000;
-      border: none;
       padding: 12px 30px;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
-      transition: background 0.3s;
+      border: none;
     }
 
     .add-btn:hover {
       background: #c2e400;
     }
 
+    .qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .qty-controls button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 4px 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .qty-controls span {
+      min-width: 24px;
+      text-align: center;
+    }
+
     footer {
-      padding: 60px 40px;
       background: #111;
-      color: #ccc;
+      padding: 40px;
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
-      font-size: 0.9em;
-    }
-
-    footer div {
-      margin-bottom: 20px;
+      color: #ccc;
     }
 
     footer h4 {
       color: #d8ff3e;
-      margin-bottom: 10px;
     }
 
     footer p {
+      margin-top: 4px;
       cursor: pointer;
-    }
-
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      background: #111;
-      padding: 30px 40px;
-      border-radius: 10px;
-      max-width: 600px;
-      color: #eee;
-      position: relative;
-      box-shadow: 0 0 20px rgba(216, 255, 62, 0.3);
-    }
-
-    .modal-content h2 {
-      color: #d8ff3e;
-      margin-bottom: 15px;
-    }
-
-    .modal-content p {
-      line-height: 1.6;
-      color: #ccc;
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 1.4em;
-      cursor: pointer;
-      color: #d8ff3e;
-    }
-
-    @media (max-width: 480px) {
-      .product-card img {
-        height: 220px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .products {
-        padding: 40px 10px;
-        gap: 16px;
-      }
     }
   </style>
 </head>
@@ -243,9 +162,7 @@
   <header>
     <div class="logo">DR!PPED</div>
     <div class="account-cart">
-      <span onclick="window.location.href='cart.html'">
-        <img src="images/cart.png" alt="Cart" height="24">
-      </span>
+      <img src="images/cart.png" alt="Cart" height="24" onclick="window.location.href='cart.html'">
     </div>
   </header>
 
@@ -261,47 +178,18 @@
     <div>
       <h4>Contact</h4>
       <p>drippedstreetwear@gmail.com</p>
-      <p>ph: +919893664934</p>
+      <p>ph: +91 98936 64934</p>
     </div>
     <div>
       <h4>Company</h4>
-      <p onclick="openModal('about')">About Us</p>
+      <p>About Us</p>
     </div>
     <div>
       <h4>Help</h4>
-      <p onclick="openModal('shipping')">Shipping</p>
-      <p onclick="openModal('returns')">Returns</p>
+      <p>Shipping</p>
+      <p>Returns</p>
     </div>
   </footer>
-
-  <!-- Modals -->
-  <div class="modal" id="aboutModal">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeModal('about')">✖</span>
-      <h2>About DR!PPED</h2>
-      <p>At <strong>DR!PPED</strong>, all t-shirts are designed and printed in-house with premium fabrics and unique graphics. We offer bold, street-ready fashion and fast delivery directly to your door.</p>
-    </div>
-  </div>
-
-  <div class="modal" id="shippingModal">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeModal('shipping')">✖</span>
-      <h2>Shipping Info</h2>
-      <p>We deliver across India within 3-5 business days. For urgent queries, contact us at:</p>
-      <p><strong>📞 WhatsApp:</strong> +919893664934</p>
-      <p><strong>📧 Email:</strong> drippedstreetwear@gmail.com</p>
-    </div>
-  </div>
-
-  <div class="modal" id="returnsModal">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeModal('returns')">✖</span>
-      <h2>Returns & Exchanges</h2>
-      <p>We offer hassle-free 3-5 day returns and size exchanges. Contact us for help:</p>
-      <p><strong>📞 WhatsApp:</strong> +919893664934</p>
-      <p><strong>📧 Email:</strong> drippedstreetwear@gmail.com</p>
-    </div>
-  </div>
 
   <script>
     const products = [
@@ -319,80 +207,59 @@
       { name: "SMOKING GIRL", price: 399, img: "images/12.png" }
     ];
 
-    const productList = document.querySelector('.products');
+    const productList = document.getElementById("productList");
 
-    products.forEach(product => {
-      const div = document.createElement('div');
-      div.className = 'product-card';
-      div.innerHTML = `
-        <img src="${product.img}" alt="${product.name}" onclick="showImage('${product.img}')"/>
+    products.forEach((product, i) => {
+      const id = `prod-${i}`;
+      const card = document.createElement("div");
+      card.className = "product-card";
+      card.innerHTML = `
+        <img src="${product.img}" alt="${product.name}">
         <h3>${product.name}</h3>
         <p>Rs ${product.price}</p>
         <div class="product-controls">
-          <select class="size-select" id="size-${product.name}">
+          <select class="size-select" id="size-${id}">
             <option value="">Select Size</option>
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-            <option value="XL">XL</option>
-            <option value="XXL">XXL</option>
+            <option>S</option>
+            <option>M</option>
+            <option>L</option>
+            <option>XL</option>
+            <option>XXL</option>
           </select>
-          <input type="number" class="qty-input" id="qty-${product.name}" value="1" min="1"/>
-          <button class="add-btn" onclick='addToCart("${product.name}", ${product.price}, "size-${product.name}", "qty-${product.name}")'>Add to Cart</button>
+          <div class="qty-controls">
+            <button onclick="decreaseQty('${id}')">-</button>
+            <span id="qty-${id}">1</span>
+            <button onclick="increaseQty('${id}')">+</button>
+          </div>
+          <button class="add-btn" onclick="addToCart('${product.name}', ${product.price}, 'size-${id}', 'qty-${id}')">Add to Cart</button>
         </div>
       `;
-      productList.appendChild(div);
+      productList.appendChild(card);
     });
+
+    function increaseQty(id) {
+      const qtyEl = document.getElementById(`qty-${id}`);
+      let qty = parseInt(qtyEl.textContent);
+      if (qty < 10) qtyEl.textContent = qty + 1;
+    }
+
+    function decreaseQty(id) {
+      const qtyEl = document.getElementById(`qty-${id}`);
+      let qty = parseInt(qtyEl.textContent);
+      if (qty > 1) qtyEl.textContent = qty - 1;
+    }
 
     function addToCart(name, price, sizeId, qtyId) {
       const size = document.getElementById(sizeId).value;
-      const quantity = parseInt(document.getElementById(qtyId).value);
-
+      const qty = parseInt(document.getElementById(qtyId).textContent);
       if (!size) return alert("Please select a size.");
-      if (!quantity || quantity < 1) return alert("Enter valid quantity.");
 
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      cart.push({ name, price, size, qty });
+      localStorage.setItem("cart", JSON.stringify(cart));
 
-      for (let i = 0; i < quantity; i++) {
-        cart.push({ name, price, size });
-      }
-
-      localStorage.setItem('cart', JSON.stringify(cart));
-
-      const toast = document.createElement('div');
-      toast.textContent = `${quantity} × ${name} (Size: ${size}) added to cart`;
-      toast.style.position = 'fixed';
-      toast.style.bottom = '30px';
-      toast.style.left = '50%';
-      toast.style.transform = 'translateX(-50%)';
-      toast.style.background = '#d8ff3e';
-      toast.style.color = '#000';
-      toast.style.padding = '12px 24px';
-      toast.style.borderRadius = '6px';
-      toast.style.zIndex = '9999';
-      toast.style.fontWeight = 'bold';
-      toast.style.boxShadow = '0 4px 10px rgba(0,0,0,0.4)';
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 2500);
-    }
-
-    function showImage(imgSrc) {
-      const modal = document.createElement('div');
-      modal.classList.add('modal', 'active');
-      modal.innerHTML = `
-        <div class="modal-content" style="padding:0; background:transparent; box-shadow:none;">
-          <span class="close-btn" onclick="this.parentElement.parentElement.remove()">✖</span>
-          <img src="${imgSrc}" style="max-width:90vw; max-height:90vh; border-radius:12px;" />
-        </div>`;
-      document.body.appendChild(modal);
-    }
-
-    function openModal(type) {
-      document.getElementById(type + "Modal").classList.add("active");
-    }
-
-    function closeModal(type) {
-      document.getElementById(type + "Modal").classList.remove("active");
+      // Optionally update cart icon or toast
+      console.log(`Added ${qty} x ${name} (Size: ${size}) to cart.`);
     }
   </script>
 </body>
