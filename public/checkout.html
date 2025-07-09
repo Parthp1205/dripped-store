@@ -6,7 +6,6 @@
   <title>Checkout – DRIPPED</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script defer src="checkout.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
     body { background-color: #000; color: #fff; }
@@ -55,6 +54,16 @@
     }
 
     button[type="submit"]:hover { background-color: #c2e400; }
+
+    .amount-display {
+      text-align: right;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+    }
+
+    .amount-display span {
+      color: #d8ff3e;
+    }
   </style>
 </head>
 <body>
@@ -66,6 +75,10 @@
   </header>
 
   <div class="checkout-container">
+    <div class="amount-display">
+      Total Payable: ₹<span id="amount">0</span>
+    </div>
+
     <form id="checkoutForm">
       <input name="name" placeholder="Full Name" required />
       <input name="phone" placeholder="Phone Number" required />
@@ -81,8 +94,85 @@
         <label><input type="radio" name="payment" value="Online" /> Pay Online</label>
       </div>
 
-      <button type="submit">Pay ₹<span id="amount">0</span></button>
+      <button type="submit">Pay ₹<span id="payButtonAmt">0</span></button>
     </form>
   </div>
+
+  <script>
+    const DELIVERY_CHARGE = 120;
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const itemTotal = cart.reduce((sum, item) => sum + item.price * (item.qty || 1), 0);
+    const finalAmount = itemTotal + DELIVERY_CHARGE;
+
+    document.getElementById('amount').textContent = finalAmount;
+    document.getElementById('payButtonAmt').textContent = finalAmount;
+
+    document.getElementById('checkoutForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const delivery = {
+        name: form.name.value,
+        phone: form.phone.value,
+        address: form.address.value,
+        city: form.city.value,
+        state: form.state.value,
+        pincode: form.pincode.value,
+      };
+
+      const paymentMethod = form.payment.value;
+
+      if (paymentMethod === 'COD') {
+        const res = await fetch('/verify-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cart, delivery, paymentMethod })
+        });
+        const result = await res.json();
+        if (result.ok) {
+          localStorage.removeItem('cart');
+          window.location.href = "success.html";
+        } else {
+          alert("Something went wrong. Please try again.");
+        }
+      } else {
+        const orderRes = await fetch('/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ total: itemTotal })
+        });
+
+        const orderData = await orderRes.json();
+        const options = {
+          key: orderData.key,
+          amount: orderData.amount,
+          currency: orderData.currency,
+          name: "DR!PPED",
+          description: "T-Shirt Order",
+          order_id: orderData.id,
+          handler: async function () {
+            const verifyRes = await fetch('/verify-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ cart, delivery, paymentMethod })
+            });
+
+            const result = await verifyRes.json();
+            if (result.ok) {
+              localStorage.removeItem('cart');
+              window.location.href = "success.html";
+            } else {
+              alert("Payment verified but order failed.");
+            }
+          },
+          theme: {
+            color: "#d8ff3e"
+          }
+        };
+        const rzp = new Razorpay(options);
+        rzp.open();
+      }
+    });
+  </script>
 </body>
 </html>

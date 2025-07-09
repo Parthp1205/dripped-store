@@ -6,45 +6,10 @@
   <title>Cart – DRIPPED</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet"/>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Montserrat', sans-serif;
-    }
-
-    body {
-      background-color: #000;
-      color: #fff;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-      border-bottom: 1px solid #333;
-    }
-
-    header h1 {
-      font-size: 2em;
-      color: #d8ff3e;
-    }
-
-    .home-btn {
-      background-color: transparent;
-      color: #fff;
-      border: 2px solid #d8ff3e;
-      padding: 10px 20px;
-      border-radius: 8px;
-      text-decoration: none;
-      transition: 0.3s;
-    }
-
-    .home-btn:hover {
-      background-color: #d8ff3e;
-      color: #000;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+    body { background-color: #000; color: #fff; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid #333; }
+    header h1 { font-size: 2em; color: #d8ff3e; }
 
     .cart-wrapper {
       max-width: 800px;
@@ -162,27 +127,36 @@
       const cartContainer = document.getElementById('cartItems');
       const itemTotalSpan = document.getElementById('itemTotal');
       const finalTotalSpan = document.getElementById('finalTotal');
+      const deliveryChargeSpan = document.getElementById('deliveryCharge');
+      const checkoutBtn = document.querySelector('.checkout-btn');
       const totalsSection = document.getElementById('totals');
 
       if (cart.length === 0) {
         cartContainer.innerHTML = `<p class="empty-cart">Your cart is empty.</p>`;
-        totalsSection.style.display = 'none';
-        document.querySelector('.checkout-btn').style.display = 'none';
+        itemTotalSpan.textContent = 0;
+        finalTotalSpan.textContent = 0;
+        deliveryChargeSpan.textContent = DELIVERY_CHARGE;
+        checkoutBtn.style.display = "none";
+        totalsSection.style.display = "none";
         return;
       }
 
+      checkoutBtn.style.display = "block";
+      totalsSection.style.display = "block";
+
       let itemTotal = 0;
       cartContainer.innerHTML = cart.map((item, index) => {
-        const totalPrice = item.price * (item.qty || 1);
+        const qty = item.qty || 1;
+        const totalPrice = item.price * qty;
         itemTotal += totalPrice;
         return `
           <div class="cart-item">
             <span class="item-name">
               ${item.name}
               ${item.size ? `<small>Size: ${item.size}</small>` : ''}
-              ${item.qty ? `<small>Quantity: ${item.qty}</small>` : ''}
+              <small>Quantity: ${qty}</small>
             </span>
-            <span>Rs ${totalPrice} 
+            <span>₹${totalPrice} 
               <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
             </span>
           </div>
@@ -190,6 +164,7 @@
       }).join('');
 
       itemTotalSpan.textContent = itemTotal;
+      deliveryChargeSpan.textContent = DELIVERY_CHARGE;
       finalTotalSpan.textContent = itemTotal + DELIVERY_CHARGE;
     }
 

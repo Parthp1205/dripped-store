@@ -200,6 +200,21 @@
       cursor: pointer;
     }
 
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #d8ff3e;
+      color: #000;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      display: none;
+      z-index: 9999;
+      box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+    }
+
     .modal {
       position: fixed;
       top: 0; left: 0;
@@ -209,7 +224,7 @@
       display: none;
       justify-content: center;
       align-items: center;
-      z-index: 9999;
+      z-index: 9998;
     }
 
     .modal.active {
@@ -294,6 +309,36 @@
     </div>
   </footer>
 
+  <div class="modal" id="aboutModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('about')">✖</span>
+      <h2>About DR!PPED</h2>
+      <p>At <strong>DR!PPED</strong>, all t-shirts are designed and printed in-house with premium fabrics and unique graphics. We offer bold, street-ready fashion and fast delivery directly to your door.</p>
+    </div>
+  </div>
+
+  <div class="modal" id="shippingModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('shipping')">✖</span>
+      <h2>Shipping Info</h2>
+      <p>We deliver across India within 3-5 business days. For urgent queries, contact us at:</p>
+      <p><strong>📞 WhatsApp:</strong> +919893664934</p>
+      <p><strong>📧 Email:</strong> drippedstreetwear@gmail.com</p>
+    </div>
+  </div>
+
+  <div class="modal" id="returnsModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('returns')">✖</span>
+      <h2>Returns & Exchanges</h2>
+      <p>We offer hassle-free 3-5 day returns and size exchanges. Contact us for help:</p>
+      <p><strong>📞 WhatsApp:</strong> +919893664934</p>
+      <p><strong>📧 Email:</strong> drippedstreetwear@gmail.com</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Item added to cart</div>
+
   <script>
     const products = [
       { name: "LOVERS CLUB", price: 399, img: "images/1.png" },
@@ -362,13 +407,20 @@
 
       localStorage.setItem('cart', JSON.stringify(cart));
 
-      // Feedback
+      // Button feedback
       btn.textContent = "Added!";
       btn.disabled = true;
       setTimeout(() => {
         btn.textContent = "Add to Cart";
         btn.disabled = false;
       }, 1200);
+
+      // Toast message
+      const toast = document.getElementById('toast');
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 1800);
     }
 
     function showImage(imgSrc) {
