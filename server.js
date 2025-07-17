@@ -79,14 +79,14 @@ ${paymentText}`.trim();
 
   try {
     // ✅ WhatsApp via Twilio
-    const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
+    /*const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
     await client.messages.create({
       from: process.env.WHATSAPP_FROM,
       to: process.env.WHATSAPP_TO,
       body: fullMessage,
     });
     console.log("✅ WhatsApp message sent.");
-
+    */
     // ✅ Email via Nodemailer
     const transporter = nodemailer.createTransport({
       service: 'gmail',
