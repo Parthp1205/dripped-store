@@ -9,6 +9,7 @@ require('dotenv').config();
 const app = express();
 const DEFAULT_DELIVERY_CHARGE = 120;
 
+// ✅ Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -19,14 +20,58 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// ✅ Create Razorpay Order (client sends itemTotal only)
+// ✅ Shiprocket Token Fetcher
+async function getShiprocketToken() {
+  const response = await axios.post('https://apiv2.shiprocket.in/v1/external/auth/login', {
+    email: process.env.SHIPROCKET_EMAIL,
+    password: process.env.SHIPROCKET_PASSWORD,
+  });
+  return response.data.token;
+}
+
+// ✅ Shiprocket Pincode Check
+app.get("/api/check_pincode", async (req, res) => {
+  const { pincode } = req.query;
+  if (!pincode) return res.status(400).json({ success: false, error: "Pincode is required" });
+
+  try {
+    const token = await getShiprocketToken();
+
+    const response = await axios.get("https://apiv2.shiprocket.in/v1/external/courier/serviceability", {
+      params: {
+        pickup_postcode: "462001", // Change to your warehouse pincode
+        delivery_postcode: pincode,
+        cod: 1,
+        weight: 1
+      },
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    const data = response.data;
+
+    if (data?.data?.available_courier_companies?.length > 0) {
+      const charge = data.data.available_courier_companies[0].rate || DEFAULT_DELIVERY_CHARGE;
+      res.json({ success: true, charge });
+    } else {
+      res.json({ success: false, charge: DEFAULT_DELIVERY_CHARGE });
+    }
+
+  } catch (error) {
+    console.error("❌ Shiprocket API error:", error?.response?.data || error.message);
+    res.json({ success: false, charge: DEFAULT_DELIVERY_CHARGE });
+  }
+});
+
+// ✅ Create Razorpay Order
 app.post("/create-order", async (req, res) => {
-  const { total } = req.body;
-  const deliveryCharge = parseFloat(req.body.deliveryCharge) || DEFAULT_DELIVERY_CHARGE;
-  const totalWithDelivery = total + deliveryCharge;
+  const { total, deliveryCharge } = req.body;
+  const charge = parseFloat(deliveryCharge) || DEFAULT_DELIVERY_CHARGE;
+  const totalWithDelivery = total + charge;
 
   const options = {
-    amount: totalWithDelivery * 100,
+    amount: totalWithDelivery * 100, // In paisa
     currency: "INR",
     receipt: "order_rcptid_" + Date.now(),
   };
@@ -45,7 +90,7 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
-// ✅ Verify & Send Order (Email only, since Razorpay handles payment)
+// ✅ Verify Order and Send Email
 app.post("/verify-order", async (req, res) => {
   const { cart, delivery, paymentMethod, deliveryCharge } = req.body;
 
@@ -100,38 +145,6 @@ ${paymentText}`.trim();
   } catch (err) {
     console.error("❌ Failed to send email:", err);
     res.status(500).json({ ok: false });
-  }
-});
-
-// ✅ Shiprocket Pincode Check
-app.get("/api/check_pincode", async (req, res) => {
-  const { pincode } = req.query;
-  if (!pincode) return res.status(400).json({ success: false, error: "Pincode is required" });
-
-  try {
-    const response = await axios.get("https://apiv2.shiprocket.in/v1/external/courier/serviceability", {
-      params: {
-        pickup_postcode: "110092",
-        delivery_postcode: pincode,
-        cod: 1,
-        weight: 1
-      },
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.SHIPROCKET_TOKEN}`
-      }
-    });
-
-    const data = response.data;
-    if (data?.data?.available_courier_companies?.length > 0) {
-      const charge = data.data.available_courier_companies[0].rate || DEFAULT_DELIVERY_CHARGE;
-      res.json({ success: true, charge });
-    } else {
-      res.json({ success: false, charge: DEFAULT_DELIVERY_CHARGE });
-    }
-  } catch (error) {
-    console.error("❌ Shiprocket API error:", error);
-    res.json({ success: false, charge: DEFAULT_DELIVERY_CHARGE });
   }
 });
 
