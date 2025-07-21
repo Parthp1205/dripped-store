@@ -24,6 +24,12 @@
       align-items: center;
       padding: 20px 40px;
       border-bottom: 1px solid #333;
+      background-color: #000;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
     }
 
     .logo {
@@ -38,8 +44,26 @@
       gap: 20px;
     }
 
-    .account-cart img {
+    .cart-icon-wrapper {
+      position: relative;
       cursor: pointer;
+    }
+
+    .cart-dot {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      border-radius: 50%;
+      display: none;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
     }
 
     .hero {
@@ -48,18 +72,20 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 100px 20px 40px;
-      background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('images/bg.jpg') no-repeat center center/cover;
+      padding: 180px 30px 40px;
+      background: linear-gradient(rgba(81, 81, 81, 0.65), rgba(86, 86, 86, 0.65)), url('images/bg2.jpg') no-repeat center center/cover;
     }
 
     .hero h1 {
       font-size: 3.5em;
       font-weight: 700;
+      color:#bebfbc
     }
 
     .hero p {
       font-size: 1.2em;
       margin: 20px 0;
+      color:#c2c4c0
     }
 
     .cta {
@@ -255,19 +281,28 @@
 <body>
   <header>
     <div class="logo">DR!PPED</div>
-    <div class="account-cart">
-      <span onclick="window.location.href='cart.html'">
+    <div class="account-cart" onclick="window.location.href='cart.html'">
+      <div class="cart-icon-wrapper">
         <img src="images/cart.png" alt="Cart" height="24">
-      </span>
+        <span class="cart-dot" id="cartDot"></span>
+      </div>
     </div>
   </header>
 
   <section class="hero">
     <h1>New Season Arrivals</h1>
     <p>Amazing Collections by <strong>DR!PPED</strong></p>
-    <button class="cta" onclick="document.getElementById('productList').scrollIntoView()">Shop Now</button>
+    <button class="cta" onclick="document.getElementById('limitedSection').scrollIntoView()">Shop Now</button>
   </section>
 
+  <!-- Limited Edition Section -->
+  <!-- Limited Edition Section -->
+<h2 style="color:#d63f3f; text-align:center; font-size:2em; margin-top:60px;">DR!PPED Limited Edition</h2>
+<section class="products" id="limitedSection"></section>
+
+
+  <!-- Oversized Section -->
+  <h2 style="color:#829631; text-align:center; font-size:2em; margin:40px 0 20px;">DR!PPED Oversized</h2>
   <section class="products" id="productList"></section>
 
   <footer>
@@ -287,6 +322,7 @@
     </div>
   </footer>
 
+  <!-- Modals -->
   <div class="modal" id="aboutModal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeModal('about')">✖</span>
@@ -314,6 +350,11 @@
   <div class="toast" id="toast">Item added to cart</div>
 
   <script>
+    const limitedProducts = [
+      { name: "DEATH SKULL", price: 499, img: "images/L1.jpg" },
+      { name: "FUCK THE WORLD", price: 499, img: "images/L2.jpg" }
+    ];
+
     const products = [
       { name: "LOVERS CLUB", price: 399, img: "images/1.png" },
       { name: "I WAS BLIND", price: 399, img: "images/2.png" },
@@ -338,38 +379,43 @@
       { name: "NEVERMIND", price: 399, img: "images/22.jpg" },
       { name: "LUST FOR LIFE", price: 399, img: "images/23.jpg" },
       { name: "SMOKING GIRL", price: 399, img: "images/12.png" }
-      
     ];
 
-    const productList = document.querySelector('.products');
+    const limitedList = document.getElementById('limitedSection');
+    const productList = document.querySelector('.products#productList');
 
-    products.forEach(product => {
-      const id = product.name.replace(/\s+/g, '-');
-      const div = document.createElement('div');
-      div.className = 'product-card';
-      div.innerHTML = `
-        <img src="${product.img}" alt="${product.name}" onclick="showImage('${product.img}')"/>
-        <h3>${product.name}</h3>
-        <p>Rs ${product.price}</p>
-        <div class="product-controls">
-          <select class="size-select" id="size-${id}">
-            <option value="">Select Size</option>
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-            <option value="XL">XL</option>
-            <option value="XXL">XXL</option>
-          </select>
-          <div class="qty-control">
-            <button class="qty-btn" onclick="changeQty('${id}', -1)">–</button>
-            <input type="number" id="qty-${id}" value="1" min="1" readonly />
-            <button class="qty-btn" onclick="changeQty('${id}', 1)">+</button>
+    function renderProducts(productArray, container) {
+      productArray.forEach(product => {
+        const id = product.name.replace(/\s+/g, '-');
+        const div = document.createElement('div');
+        div.className = 'product-card';
+        div.innerHTML = `
+          <img src="${product.img}" alt="${product.name}" onclick="showImage('${product.img}')"/>
+          <h3>${product.name}</h3>
+          <p>Rs ${product.price}</p>
+          <div class="product-controls">
+            <select class="size-select" id="size-${id}">
+              <option value="">Select Size</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+              <option value="XXL">XXL</option>
+            </select>
+            <div class="qty-control">
+              <button class="qty-btn" onclick="changeQty('${id}', -1)">–</button>
+              <input type="number" id="qty-${id}" value="1" min="1" readonly />
+              <button class="qty-btn" onclick="changeQty('${id}', 1)">+</button>
+            </div>
+            <button class="add-btn" onclick='addToCart("${product.name}", ${product.price}, "size-${id}", "qty-${id}", this)'>Add to Cart</button>
           </div>
-          <button class="add-btn" onclick='addToCart("${product.name}", ${product.price}, "size-${id}", "qty-${id}", this)'>Add to Cart</button>
-        </div>
-      `;
-      productList.appendChild(div);
-    });
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    renderProducts(limitedProducts, limitedList);
+    renderProducts(products, productList);
 
     function changeQty(id, delta) {
       const input = document.getElementById(`qty-${id}`);
@@ -404,6 +450,14 @@
       setTimeout(() => {
         toast.style.display = 'none';
       }, 1800);
+
+      updateCartDot();
+    }
+
+    function updateCartDot() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const cartDot = document.getElementById('cartDot');
+      cartDot.style.display = cart.length > 0 ? 'block' : 'none';
     }
 
     function showImage(imgSrc) {
@@ -424,6 +478,8 @@
     function closeModal(type) {
       document.getElementById(type + "Modal").classList.remove("active");
     }
+
+    updateCartDot();
   </script>
 </body>
 </html>
