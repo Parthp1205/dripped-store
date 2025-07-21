@@ -3,6 +3,7 @@ const Razorpay = require('razorpay');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
 const twilio = require('twilio');
+const axios = require('axios');
 const path = require('path');
 require('dotenv').config();
 
@@ -78,15 +79,6 @@ ${itemList}
 ${paymentText}`.trim();
 
   try {
-    // ✅ WhatsApp via Twilio
-    /*const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH);
-    await client.messages.create({
-      from: process.env.WHATSAPP_FROM,
-      to: process.env.WHATSAPP_TO,
-      body: fullMessage,
-    });
-    console.log("✅ WhatsApp message sent.");
-    */
     // ✅ Email via Nodemailer
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -108,6 +100,38 @@ ${paymentText}`.trim();
   } catch (err) {
     console.error("❌ Failed to send notification:", err);
     res.status(500).json({ ok: false });
+  }
+});
+
+// ✅ Shiprocket Pincode Check (converted from PHP)
+app.get("/api/check_pincode", async (req, res) => {
+  const { pincode } = req.query;
+  if (!pincode) return res.status(400).json({ success: false, error: "Pincode is required" });
+
+  try {
+    const response = await axios.get("https://apiv2.shiprocket.in/v1/external/courier/serviceability", {
+      params: {
+        pickup_postcode: "110092",
+        delivery_postcode: pincode,
+        cod: 1,
+        weight: 1
+      },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.SHIPROCKET_TOKEN}`
+      }
+    });
+
+    const data = response.data;
+    if (data?.data?.available_courier_companies?.length > 0) {
+      const charge = data.data.available_courier_companies[0].rate || DELIVERY_CHARGE;
+      res.json({ success: true, charge });
+    } else {
+      res.json({ success: false, charge: DELIVERY_CHARGE });
+    }
+  } catch (error) {
+    console.error("❌ Shiprocket API error:", error);
+    res.json({ success: false, charge: DELIVERY_CHARGE });
   }
 });
 
