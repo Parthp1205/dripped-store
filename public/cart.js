@@ -50,10 +50,8 @@ function renderCart() {
   deliveryChargeSpan.textContent = deliveryCharge || 0;
   finalTotalSpan.textContent = itemTotal + (deliveryCharge || 0);
 
-  // Save delivery charge to localStorage for checkout use
   localStorage.setItem('deliveryCharge', deliveryCharge);
 
-  // Enable checkout only if delivery verified
   checkoutBtn.style.display = (deliveryCharge > 0) ? "block" : "none";
   totalsSection.style.display = "block";
 }
@@ -79,26 +77,25 @@ function checkPincode() {
   fetch(`/api/check_pincode?pincode=${pincode}`)
     .then((res) => res.json())
     .then((data) => {
-      if (data.success) {
-        deliveryCharge = parseFloat(data.charge || DEFAULT_DELIVERY_CHARGE);
+      if (data === true || data.success === true) {
+        deliveryCharge = DEFAULT_DELIVERY_CHARGE;
         deliveryMessage.innerHTML = `<span style="color:green;">✅ Delivery available. Charge: ₹${deliveryCharge}</span>`;
       } else {
         deliveryCharge = DEFAULT_DELIVERY_CHARGE;
-        deliveryMessage.innerHTML = `<span style="color:orange;">⚠️ Delivery may not be available. Default charge ₹${DEFAULT_DELIVERY_CHARGE} applied.</span>`;
+        deliveryMessage.innerHTML = `<span style="color:red;">❌ Could not verify delivery. Default charge ₹${deliveryCharge} applied.</span>`;
       }
       renderCart();
     })
     .catch((error) => {
-      console.error("Shiprocket error:", error);
+      console.error("Delivery check error:", error);
       deliveryCharge = DEFAULT_DELIVERY_CHARGE;
-      deliveryMessage.innerHTML = `<span style="color:orange;">⚠️ Could not verify delivery. Default charge ₹${DEFAULT_DELIVERY_CHARGE} applied.</span>`;
+      deliveryMessage.innerHTML = `<span style="color:red;">❌ Could not verify delivery. Default charge ₹${deliveryCharge} applied.</span>`;
       renderCart();
     });
 }
 
 // ⏳ ON LOAD
 document.addEventListener('DOMContentLoaded', () => {
-  // Load delivery charge if previously saved
   deliveryCharge = parseFloat(localStorage.getItem('deliveryCharge')) || 0;
   renderCart();
 });
