@@ -2,13 +2,12 @@ const express = require('express');
 const Razorpay = require('razorpay');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
-const twilio = require('twilio');
 const axios = require('axios');
 const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const DELIVERY_CHARGE = 120;
+const DEFAULT_DELIVERY_CHARGE = 120;
 
 app.use(cors());
 app.use(express.json());
@@ -20,13 +19,14 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// ✅ Create Razorpay order (with delivery)
+// ✅ Create Razorpay Order (client sends itemTotal only)
 app.post("/create-order", async (req, res) => {
   const { total } = req.body;
-  const totalWithDelivery = total + DELIVERY_CHARGE;
+  const deliveryCharge = parseFloat(req.body.deliveryCharge) || DEFAULT_DELIVERY_CHARGE;
+  const totalWithDelivery = total + deliveryCharge;
 
   const options = {
-    amount: totalWithDelivery * 100, // in paise
+    amount: totalWithDelivery * 100,
     currency: "INR",
     receipt: "order_rcptid_" + Date.now(),
   };
@@ -45,16 +45,17 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
-// ✅ Order verification + notifications
+// ✅ Verify & Send Order (Email only, since Razorpay handles payment)
 app.post("/verify-order", async (req, res) => {
-  const { cart, delivery, paymentMethod } = req.body;
+  const { cart, delivery, paymentMethod, deliveryCharge } = req.body;
 
   if (!cart || !delivery || !paymentMethod) {
     return res.status(400).json({ ok: false, error: "Missing data" });
   }
 
+  const charge = parseFloat(deliveryCharge) || DEFAULT_DELIVERY_CHARGE;
   const itemTotal = cart.reduce((sum, item) => sum + item.price * (item.qty || 1), 0);
-  const finalTotal = itemTotal + DELIVERY_CHARGE;
+  const finalTotal = itemTotal + charge;
 
   const itemList = cart.map(i =>
     `• ${i.name} (Size: ${i.size || '-'}, Qty: ${i.qty || 1}) – ₹${i.price} x ${i.qty || 1} = ₹${i.price * (i.qty || 1)}`
@@ -73,13 +74,12 @@ app.post("/verify-order", async (req, res) => {
 🧾 Items:
 ${itemList}
 
-📦 Delivery Charge: ₹${DELIVERY_CHARGE}
+📦 Delivery Charge: ₹${charge}
 💰 Item Total: ₹${itemTotal}
 💳 Final Total: ₹${finalTotal}
 ${paymentText}`.trim();
 
   try {
-    // ✅ Email via Nodemailer
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -94,16 +94,16 @@ ${paymentText}`.trim();
       subject: `New Order from ${delivery.name}`,
       text: fullMessage,
     });
-    console.log("✅ Email sent.");
 
+    console.log("✅ Email sent.");
     res.json({ ok: true });
   } catch (err) {
-    console.error("❌ Failed to send notification:", err);
+    console.error("❌ Failed to send email:", err);
     res.status(500).json({ ok: false });
   }
 });
 
-// ✅ Shiprocket Pincode Check (converted from PHP)
+// ✅ Shiprocket Pincode Check
 app.get("/api/check_pincode", async (req, res) => {
   const { pincode } = req.query;
   if (!pincode) return res.status(400).json({ success: false, error: "Pincode is required" });
@@ -124,14 +124,14 @@ app.get("/api/check_pincode", async (req, res) => {
 
     const data = response.data;
     if (data?.data?.available_courier_companies?.length > 0) {
-      const charge = data.data.available_courier_companies[0].rate || DELIVERY_CHARGE;
+      const charge = data.data.available_courier_companies[0].rate || DEFAULT_DELIVERY_CHARGE;
       res.json({ success: true, charge });
     } else {
-      res.json({ success: false, charge: DELIVERY_CHARGE });
+      res.json({ success: false, charge: DEFAULT_DELIVERY_CHARGE });
     }
   } catch (error) {
     console.error("❌ Shiprocket API error:", error);
-    res.json({ success: false, charge: DELIVERY_CHARGE });
+    res.json({ success: false, charge: DEFAULT_DELIVERY_CHARGE });
   }
 });
 

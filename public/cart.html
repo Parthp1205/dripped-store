@@ -232,10 +232,12 @@
         .then(data => {
           if (data.success && data.rate) {
             deliveryCharge = parseInt(data.rate);
+            localStorage.setItem('deliveryCharge', deliveryCharge); // ✅ Save to localStorage
             msg.textContent = `✅ Delivery available. Charge: ₹${deliveryCharge}`;
             msg.style.color = "#d8ff3e";
           } else {
             deliveryCharge = DEFAULT_DELIVERY_CHARGE;
+            localStorage.setItem('deliveryCharge', deliveryCharge); // ✅ Save to localStorage
             msg.textContent = `⚠ Default delivery charge ₹${DEFAULT_DELIVERY_CHARGE} applied.`;
             msg.style.color = "#ffa500";
           }
@@ -243,6 +245,7 @@
         })
         .catch(() => {
           deliveryCharge = DEFAULT_DELIVERY_CHARGE;
+          localStorage.setItem('deliveryCharge', deliveryCharge); // ✅ Save to localStorage
           msg.textContent = `❌ Could not verify delivery. Default charge ₹${DEFAULT_DELIVERY_CHARGE} applied.`;
           msg.style.color = "#ff4d4d";
           renderCart();

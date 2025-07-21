@@ -61,6 +61,13 @@
       font-size: 1.1em;
     }
 
+    .amount-breakdown {
+      text-align: right;
+      font-size: 0.95em;
+      color: #aaa;
+      margin-bottom: 6px;
+    }
+
     .amount-display span {
       color: #d8ff3e;
     }
@@ -75,6 +82,10 @@
   </header>
 
   <div class="checkout-container">
+    <div class="amount-breakdown">
+      Items: ₹<span id="itemTotal">0</span><br>
+      Delivery: ₹<span id="deliveryCharge">0</span>
+    </div>
     <div class="amount-display">
       Total Payable: ₹<span id="amount">0</span>
     </div>
@@ -99,13 +110,16 @@
   </div>
 
   <script>
-    const DELIVERY_CHARGE = 120;
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const itemTotal = cart.reduce((sum, item) => sum + item.price * (item.qty || 1), 0);
-    const finalAmount = itemTotal + DELIVERY_CHARGE;
+    const deliveryChargeStored = parseFloat(localStorage.getItem('deliveryCharge')) || 120;
 
-    document.getElementById('amount').textContent = finalAmount;
-    document.getElementById('payButtonAmt').textContent = finalAmount;
+    const itemTotal = cart.reduce((sum, item) => sum + item.price * (item.qty || 1), 0);
+    const finalAmount = itemTotal + deliveryChargeStored;
+
+    document.getElementById('itemTotal').textContent = itemTotal.toFixed(2);
+    document.getElementById('deliveryCharge').textContent = deliveryChargeStored.toFixed(2);
+    document.getElementById('amount').textContent = finalAmount.toFixed(2);
+    document.getElementById('payButtonAmt').textContent = finalAmount.toFixed(2);
 
     document.getElementById('checkoutForm').addEventListener('submit', async function (e) {
       e.preventDefault();
@@ -139,7 +153,7 @@
         const orderRes = await fetch('/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ total: itemTotal })
+          body: JSON.stringify({ total: itemTotal }) // only item total sent to Razorpay
         });
 
         const orderData = await orderRes.json();
@@ -164,6 +178,10 @@
             } else {
               alert("Payment verified but order failed.");
             }
+          },
+          prefill: {
+            name: delivery.name,
+            contact: delivery.phone
           },
           theme: {
             color: "#d8ff3e"
