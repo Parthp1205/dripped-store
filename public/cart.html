@@ -65,7 +65,7 @@
     }
 
     .checkout-btn {
-      display: block;
+      display: none;
       margin: 30px auto 0;
       padding: 14px 40px;
       font-size: 1.1rem;
@@ -88,6 +88,33 @@
       font-size: 1.2rem;
       color: #888;
     }
+
+    .delivery-check {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .delivery-check input {
+      padding: 8px;
+      margin-right: 8px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    .delivery-check button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: #d8ff3e;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+
+    #deliveryMsg {
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
   </style>
 </head>
 <body>
@@ -101,9 +128,16 @@
   <div class="cart-wrapper">
     <div id="cartItems"></div>
 
+    <div class="delivery-check">
+      <label for="pincodeInput">Enter Pincode:</label>
+      <input type="text" id="pincodeInput" placeholder="e.g. 400001" maxlength="6" />
+      <button onclick="checkDelivery()">Check Delivery</button>
+      <p id="deliveryMsg" style="color: #aaa;"></p>
+    </div>
+
     <div class="total-section" id="totals">
       <p>Item Total: ₹<span id="itemTotal">0</span></p>
-      <p>Delivery Charge: ₹<span id="deliveryCharge">120</span></p>
+      <p>Delivery Charge: ₹<span id="deliveryCharge">0</span></p>
       <hr style="margin: 10px 0; border: 0.5px solid #444;">
       <p><strong>Final Total: ₹<span id="finalTotal">0</span></strong></p>
     </div>
@@ -112,7 +146,8 @@
   </div>
 
   <script>
-    const DELIVERY_CHARGE = 120;
+    const DEFAULT_DELIVERY_CHARGE = 120;
+    let deliveryCharge = 0;
 
     function getCart() {
       return JSON.parse(localStorage.getItem('cart') || '[]');
@@ -135,14 +170,11 @@
         cartContainer.innerHTML = `<p class="empty-cart">Your cart is empty.</p>`;
         itemTotalSpan.textContent = 0;
         finalTotalSpan.textContent = 0;
-        deliveryChargeSpan.textContent = DELIVERY_CHARGE;
+        deliveryChargeSpan.textContent = 0;
         checkoutBtn.style.display = "none";
         totalsSection.style.display = "none";
         return;
       }
-
-      checkoutBtn.style.display = "block";
-      totalsSection.style.display = "block";
 
       let itemTotal = 0;
       cartContainer.innerHTML = cart.map((item, index) => {
@@ -156,7 +188,7 @@
               ${item.size ? `<small>Size: ${item.size}</small>` : ''}
               <small>Quantity: ${qty}</small>
             </span>
-            <span>₹${totalPrice} 
+            <span>₹${totalPrice}
               <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
             </span>
           </div>
@@ -164,8 +196,11 @@
       }).join('');
 
       itemTotalSpan.textContent = itemTotal;
-      deliveryChargeSpan.textContent = DELIVERY_CHARGE;
-      finalTotalSpan.textContent = itemTotal + DELIVERY_CHARGE;
+      deliveryChargeSpan.textContent = deliveryCharge;
+      finalTotalSpan.textContent = itemTotal + deliveryCharge;
+
+      checkoutBtn.style.display = deliveryCharge > 0 ? 'block' : 'none';
+      totalsSection.style.display = 'block';
     }
 
     function removeItem(index) {
@@ -173,6 +208,45 @@
       cart.splice(index, 1);
       saveCart(cart);
       renderCart();
+    }
+
+    function checkDelivery() {
+      const pincode = document.getElementById("pincodeInput").value.trim();
+      const msg = document.getElementById("deliveryMsg");
+
+      if (!/^[0-9]{6}$/.test(pincode)) {
+        msg.textContent = "❌ Please enter a valid 6-digit pincode.";
+        msg.style.color = "#ff4d4d";
+        return;
+      }
+
+      msg.textContent = "Checking...";
+      msg.style.color = "#aaa";
+
+      fetch("/check_pincode.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pincode })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.rate) {
+            deliveryCharge = parseInt(data.rate);
+            msg.textContent = `✅ Delivery available. Charge: ₹${deliveryCharge}`;
+            msg.style.color = "#d8ff3e";
+          } else {
+            deliveryCharge = DEFAULT_DELIVERY_CHARGE;
+            msg.textContent = `⚠ Default delivery charge ₹${DEFAULT_DELIVERY_CHARGE} applied.`;
+            msg.style.color = "#ffa500";
+          }
+          renderCart();
+        })
+        .catch(() => {
+          deliveryCharge = DEFAULT_DELIVERY_CHARGE;
+          msg.textContent = `❌ Could not verify delivery. Default charge ₹${DEFAULT_DELIVERY_CHARGE} applied.`;
+          msg.style.color = "#ff4d4d";
+          renderCart();
+        });
     }
 
     document.addEventListener('DOMContentLoaded', renderCart);
